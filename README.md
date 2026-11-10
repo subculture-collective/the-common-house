@@ -1,32 +1,114 @@
 # The Common House
 
-A first-person narrative investigation game concept about found family at a communal radio outpost in an alternate future after societal collapse.
+The radio in the old telecom office never goes fully quiet. Most nights it
+carries ordinary voices from other refuges. Some calls come from somewhere
+else.
 
-The player is a newcomer. Strange calls lead to authored cases involving the people who have offered them a home. The tone favors suspense, mystery, and creepiness. Present-day play remains at the outpost. The owner expects a good number of flashbacks into other locations; their access and perspective remain open.
+The Common House is a first-person narrative investigation game in
+development, built in Unity. You play a newcomer at a converted
+telecommunications office that a found family has made into a home and a radio
+outpost, some months after an incident that disrupted time and space. Strange
+calls lead to cases about the people who took you in. The tone leans toward
+suspense, mystery and unease.
 
-## Current state
+It is an early proof of concept. There is no public build or release, and
+character names, story details and art are working material that will change.
 
-A converted-telecommunications-office home base with first-person movement, the three original Case 01 rooms, and provisional shared locations: an office concourse, reception commons, repair hackerspace, communal sleeping bay, and utility room. Its modern multi-storey exterior is a closed shell; upper-floor interiors remain unbuilt. The [home-base direction](docs/design/home-base.md) records the office reference and DedSec influence, and the [development guide](docs/development/office-complex.md) covers the original procedural asset kit.
+![Style board render of the radio desk](docs/design/style-board/radio-desk.jpg)
 
-The [telecommunications environment study](docs/development/telecom-environment.md) adds connected cable trays, patch panels, a cross-connect cabinet, and three original printed graphics in the shared spaces. These remain presentation assets with no network simulation or new case interactions.
+*Style board render. More in [docs/design/style-board](docs/design/style-board.md).*
 
-A [modular city kit](docs/development/city-assets.md) prepares street surfaces, facade bays, and street furniture for future flashback locations. Its separate review scene is excluded from the playable build.
+## What is playable
 
-The [first Season 1 prop kit](docs/development/season-one-assets.md) adds 16 reusable broadcast, privacy, record, and shared-table objects. Its [asset inventory](docs/design/season-01-asset-inventory.md) maps these and existing assets to each episode. A separate review scene and [rendered verification](docs/verification/season-one-assets.md) support the provisional art pass.
+- **Case 01**, the first case: receive a call, inspect documents, review
+  transmissions, compare sources in a notebook, talk to residents, check who a
+  response will reach, and confirm or refuse a send. The case has three
+  outcomes, each with its own household aftermath.
+- **The outpost**: a converted-office home base with first-person movement,
+  the three Case 01 rooms and provisional shared spaces (concourse, reception
+  commons, repair hackerspace, sleeping bay, utility room). Upper-floor
+  interiors are not built.
+- **Residents** with talking, sitting and walking routines who turn to face
+  the player in conversation.
+- **Arrival intro**: a separate playable opening scene with the arrival,
+  radio, greeting and orientation. It is not yet connected to Case 01.
+- **Saves**: local, versioned saves with save, checkpoint and load.
+- **Keyboard play**: every step of the Case 01 route works from the keyboard,
+  with no timed choices, no colour-only decisions and captions for essential
+  audio. Text scales from 100% to 150%.
+- **Look**: HDRP on Vulkan, rendered in a low-poly retro style, with CC0
+  scanned materials and models.
 
-The [Motion detected source set](docs/development/motion-detected-source-assets.md) adds six reusable exterior basement-entrance props and a fixed camera review for Episode 1. Its [source renders](docs/verification/motion-detected-source-assets.md) retain exterior coverage in both door states; actors and animated clips remain later work.
+Asset kits for later episodes (city streets for flashbacks, a Season 1 prop
+kit, an exterior camera set) have their own review scenes and are not in the
+playable build.
 
-The deterministic Case 01 model has local versioned saves and automated text-only rehearsals for all three narrative outcomes. Inspection, transmission review, source comparison, resident conversations, consequential send confirmation, and matching aftermath are wired into the scene. Runtime save/reload, keyboard action paths, and shared text scaling are implemented. The six existing case scene routes and a local Linux development build with an R2 player smoke are qualified. An owner has reported reaching refusal and using Save during exploratory play; Load and case understanding remain unverified in that report. The broader playtest evaluation remains open. Release structure is deferred until after the POC.
+### Controls
 
-The [local build report](docs/verification/local-build.md) includes the retained player, launch command, artifact identity, and current limits.
+`WASD` moves and the arrow keys look. `E` opens the focused object, `Enter`
+reads, asks, marks or confirms, and `Escape` closes the current panel or
+pauses. `N` opens the notebook, `C` and `Tab` compare evidence, `V` checks a
+route. `F5` saves, `F8` sets a checkpoint, `F9` loads.
+See [keyboard route](docs/development/keyboard-route.md).
 
-The arrival intro has a separate [authored content asset](docs/development/intro-content.md), [in-memory state rehearsal](docs/development/intro-state.md), and [playable arrival, radio, greeting, and explicit completion](docs/development/intro-opening.md). Intro persistence and the Episode 1 runtime connection remain later work; it does not replace the Case 01 opening.
+## Quick start
 
-See the [initial owner evaluation](docs/playtests/poc-evaluation.md) for the reported observations, unknowns, and next evaluation questions.
+You need:
+
+- Unity `6000.4.10f1` with Linux build support (the exact version is in
+  `ProjectSettings/ProjectVersion.txt`) and a Vulkan-capable GPU
+- Git LFS: textures, models and animations under `Assets/` are LFS objects
+- Python 3.10 or newer for the scripts and checks
+
+```sh
+git clone https://github.com/subculture-collective/the-common-house.git
+cd the-common-house
+git lfs install
+git lfs pull
+```
+
+Open the project folder in the Unity Editor, then open
+`Assets/CommonHouse/Scenes/OutpostBlockout.unity` and press Play.
+
+The helper scripts copy `Assets/`, `Packages/` and `ProjectSettings/` into a
+disposable project, run the Editor there and remove the copy afterward. Pass
+your Editor with `--editor /path/to/Editor/Unity` or the `UNITY_EDITOR`
+environment variable:
+
+```sh
+python3 scripts/check_unity_import.py --editor /path/to/Editor/Unity     # fresh import
+python3 scripts/run_unity_tests.py --platform editmode --filter CommonHouse.Tests.ProjectSmokeTests --editor /path/to/Editor/Unity
+python3 scripts/run_unity_tests.py --platform playmode --filter CommonHouse.Tests.ProjectPlayModeSmokeTests --editor /path/to/Editor/Unity
+python3 scripts/build_poc.py --target local --smoke --editor /path/to/Editor/Unity   # Linux player build and scripted run
+```
+
+The Editor needs your normal Unity licence; the scripts never install Unity or
+activate a licence.
+
+Checks that need no Unity:
+
+```sh
+python3 -m unittest discover -s tests   # tests for the Python tools
+python3 scripts/check_docs.py           # local Markdown links resolve
+python3 scripts/check_binary_sizes.py   # binary size and LFS policy
+python3 scripts/check_provenance.py     # asset provenance manifest
+```
+
+More commands, including scene and asset regeneration, are in the
+[development guide](docs/development.md).
+
+## Assets
+
+Textures and models under `Assets/` are stored with Git LFS. Other binaries,
+such as documentation images, stay in plain Git, and `check_binary_sizes.py`
+fails on any plain-Git binary over 5 MiB or an LFS-pattern file committed
+without an LFS pointer. Scanned assets must be CC0 and listed in the
+[provenance manifest](docs/development/asset-sourcing.md).
 
 ## Design documents
 
-Start with the [design index](docs/design/README.md), then read:
+`docs/design/` is the design source. Start with the
+[design index](docs/design/README.md), then:
 
 - [Concept brief](docs/design/concept-brief.md)
 - [Game design document](docs/design/game-design-document.md)
@@ -34,50 +116,31 @@ Start with the [design index](docs/design/README.md), then read:
 - [First case](docs/design/case-01-the-road-is-clear.md)
 - [Decisions and open questions](docs/design/decisions-and-open-questions.md)
 
-`docs/design/` is the authoritative design source. The vault originals are retained as migration snapshots. [Import provenance](docs/import-provenance.json) records their source and hashes.
+Some design notes contain story spoilers.
 
-## Unity setup boundary
+## Project layout
 
-Unity `6000.4.10f1` is verified on Kvant. The Editor-generated
-`ProjectSettings/ProjectVersion.txt` records its revision; `Packages/` records
-the resolved dependencies. See the [readiness inventory](docs/development/unity-readiness.md)
-and [project creation evidence](docs/development/unity-project.md).
+```text
+Assets/CommonHouse/   game code, scenes, art, content and tests
+Packages/             Unity package manifest and lock
+ProjectSettings/      Unity project settings and Editor version
+scripts/              build, test, capture and check tools (Python)
+tests/                tests for the Python tools
+tools/                Blender character and mesh-decimation helpers
+docs/design/          concept, game design, story and art direction
+docs/development/     how each system works and how to test it
+```
 
-Run `python3 scripts/check_unity_import.py` for a fresh import in a disposable
-copy. Focused EditMode and PlayMode commands and their [verification evidence](docs/verification/milestone-0.md)
-are documented in the development guide. The project renders with HDRP on Vulkan in linear colour (decision D-20; see the
-[HDRP migration report](docs/verification/hdrp-migration.md)). It uses legacy input defaults and
-explicit development company/product names. It contains no third-party assets.
+## Contributing
 
-Unity-generated caches, local editor state, builds, and logs are ignored. Textures and models under `Assets/` are stored with Git LFS (decision D-22); run `git lfs install` once per clone. Other binaries, such as documentation images, stay in plain Git, and `python3 scripts/check_binary_sizes.py` fails on any over 5 MiB. Scanned assets must be CC0 and listed in the [provenance manifest](docs/development/asset-sourcing.md) (decision D-21). No distribution license has been selected. Open source is a game theme, not an agreed release license.
-
-## First proof of concept
-
-The proposed baseline is one case across a small radio room, kitchen, and archive/workshop: receive a call, inspect evidence, question a resident, route a response, and encounter a household consequence. Temporary assets are sufficient. A short investigative memory is a later POC experiment after the core loop works.
-
-The detailed case, character names, room count, and playtest thresholds remain proposals. Confirmed creative choices are recorded separately in the decision register.
-
-## T3 development environment
-
-The `the-common-house` recipe provides an isolated design-document source
-preview and document checks on Kvant. It does not start Unity or a playable
-game. See [Development environment](docs/development.md) for commands, scope,
-and the Unity setup requirements.
-
-## Implementation tracking
-
-The private [Gitea repository](https://git.subcult.tv/subculture-collective/the-common-house)
-owns the source and [issue backlog](https://git.subcult.tv/subculture-collective/the-common-house/issues).
-The [implementation plan](docs/implementation-plan.md) sequences small agent tasks
-using the Open Pilot issue format. Case 01 is the working POC baseline; names
-and story details remain provisional. Issues are not automatically queued.
+Open a pull request on GitHub against `main`. CI runs the Python tool tests,
+the documentation link check and the binary-size and provenance checks on
+every pull request; they must pass before it merges. Unity tests are not run
+in CI, so run the relevant ones locally.
 
 ## License
 
-Original contributions in this repository are licensed under the GNU General
-Public License, version 3 or (at your option) any later version
-(`GPL-3.0-or-later`). See [LICENSE](LICENSE).
-
-Third-party code, documentation, fonts, data, and other assets retain their own
-licenses, copyright notices, and attribution. This license does not replace
-those terms or grant rights to upstream material that its authors have not granted.
+Original contributions are licensed under the GNU General Public License,
+version 3 or any later version (`GPL-3.0-or-later`). See [LICENSE](LICENSE).
+Third-party code, fonts, data and other assets keep their own licences and
+attribution.
