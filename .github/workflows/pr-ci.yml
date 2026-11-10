@@ -1,0 +1,56 @@
+name: PR CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-quality:
+    name: Portable quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GIT_LFS_SKIP_SMUDGE: "1"
+      PYTHONOPTIMIZE: "0"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          lfs: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Run existing Python regressions
+        run: python3 -m unittest discover -s tests
+      - name: Validate documentation
+        run: python3 scripts/check_docs.py
+      - name: Validate binary policy and provenance metadata
+        run: |
+          python3 scripts/check_binary_sizes.py
+          python3 scripts/check_provenance.py
+
+  ci-gate:
+    name: CI gate
+    if: always()
+    needs: [portable-quality]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every verification job
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          results = json.loads(os.environ["RESULTS"])
+          expected = {'portable-quality'}
+          assert set(results) == expected, results
+          for name, result in results.items():
+              assert result["result"] == "success", name + " did not pass"
+          PY
