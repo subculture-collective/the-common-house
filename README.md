@@ -133,7 +133,11 @@ docs/development/     how each system works and how to test it
 
 ## Contributing
 
-Open a pull request on GitHub against `main`. CI runs the Python tool tests,
+Report bugs and request features in
+[GitHub issues](https://github.com/subculture-collective/the-common-house/issues),
+and bring questions and ideas to
+[GitHub Discussions](https://github.com/subculture-collective/the-common-house/discussions).
+For code, open a pull request on GitHub against `main`. CI runs the Python tool tests,
 the documentation link check and the binary-size and provenance checks on
 every pull request; they must pass before it merges. Unity tests are not run
 in CI, so run the relevant ones locally.
